@@ -1,0 +1,41 @@
+/*
+  errouthk.rc - Version resource for errout{32,64}.dll.
+
+  Jason Hood, 29 June, 2011.
+*/
+
+#include <winver.h>
+
+#ifdef _WIN64
+# define BITS "64"
+#else
+# define BITS "32"
+#endif
+
+1 VERSIONINFO
+FILEVERSION	1,1,0,0
+PRODUCTVERSION	1,1,0,0
+FILEOS		VOS_NT
+FILETYPE	VFT_DLL
+{
+  BLOCK "StringFileInfo"
+  {
+    BLOCK "040904B0"
+    {
+      VALUE "Comments",         "http://errout.adoxa.vze.com/"
+      VALUE "CompanyName",      "Jason Hood"
+      VALUE "FileDescription",  "Errout Hook"
+      VALUE "FileVersion",      "1.10"
+      VALUE "InternalName",     "errouthk"
+      VALUE "LegalCopyright",   "Freeware"
+      VALUE "OriginalFilename", "errout" BITS ".dll"
+      VALUE "ProductName",      "Errout"
+      VALUE "ProductVersion",   "1.10"
+    }
+  }
+
+  BLOCK "VarFileInfo"
+  {
+    VALUE "Translation", 0x0409, 0x04B0
+  }
+}

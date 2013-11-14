@@ -1,0 +1,35 @@
+/*
+  errout.rc - Version resource for errout.exe.
+
+  Jason Hood, 29 June, 2011.
+*/
+
+#include <winver.h>
+
+1 VERSIONINFO
+FILEVERSION	1,1,0,0
+PRODUCTVERSION	1,1,0,0
+FILEOS		VOS_NT
+FILETYPE	VFT_APP
+{
+  BLOCK "StringFileInfo"
+  {
+    BLOCK "040904B0"
+    {
+      VALUE "Comments",         "http://errout.adoxa.vze.com/"
+      VALUE "CompanyName",      "Jason Hood"
+      VALUE "FileDescription",  "Errout"
+      VALUE "FileVersion",      "1.10"
+      VALUE "InternalName",     "errout"
+      VALUE "LegalCopyright",   "Freeware"
+      VALUE "OriginalFilename", "errout.exe"
+      VALUE "ProductName",      "Errout"
+      VALUE "ProductVersion",   "1.10"
+    }
+  }
+
+  BLOCK "VarFileInfo"
+  {
+    VALUE "Translation", 0x0409, 0x04B0
+  }
+}

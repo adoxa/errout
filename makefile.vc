@@ -1,0 +1,134 @@
+# VC makefile for Errout.
+# Jason Hood, 2 July, 2011.  Updated 13 November, 2013.
+#
+# Tested with:
+# * Visual Studio 6.0 (VC6, in conjuction with 2003 PSDK);
+# * Visual C++ 2003 Toolkit (VC7);
+# * Platform SDK for Windows Server 2003 R2 (VC8 64-bit);
+# * Visual Studio 2008 Express SP1 (VC9);
+# * Visual Studio 2010 Professional (VC10).
+#
+# Note that the 64-bit version still requires a 32-bit compiler.
+#
+# Commands are hidden by default, add "V=1" to show them (or change var below).
+
+#BITS = 32
+#BITS = 64
+
+!IFNDEF BITS
+!IF "$(CPU)" == "AMD64" || "$(PLATFORM)" == "x64"
+BITS = 64
+!ELSE
+BITS = 32
+!ENDIF
+!ENDIF
+
+!IF $(BITS) == 32
+DIR = x86
+!ELSE
+!IF $(BITS) == 64
+DIR = x64
+RFLAGS = /D_WIN64
+!ELSE
+!ERROR BITS should be defined to 32 or 64.
+!ENDIF
+!ENDIF
+
+STUBS = noarg.obj noenv.obj
+
+# This is required for the 2003 Platform SDK, but not for Visual Studio 2010.
+!IF "$(_NMAKE_VER)" == "7.00.8882"
+!IF $(BITS) == 64
+LIBS64 = bufferoverflowu.lib
+!ELSE
+# The 2003 Toolkit doesn't have MSVCRT.LIB, but VC98 does.
+!IF !DEFINED(SHARE) && !DEFINED(MSVCDIR)
+SHARE =
+!ENDIF
+# Neither have the stubbed out functions.
+STUBS =
+!ENDIF
+!ENDIF
+
+# Link with MSVCRT.LIB by default.
+!IFNDEF SHARE
+SHARE = /MD
+!ENDIF
+
+# Manifest tool to embed the manifest required by 2008.
+MT = mt.exe
+
+CFLAGS = /nologo /W3 /O2 $(SHARE) /D_CRT_SECURE_NO_WARNINGS
+LIBS = $(STUBS) advapi32.lib shell32.lib user32.lib $(LIBS64)
+
+!IF !DEFINED(V)
+V = 0
+!ENDIF
+!IF $(V) == 0
+CCmsg = @
+RCmsg = @echo $<&
+LDmsg = @echo $@&
+MTmsg = @echo Embedding manifest&
+!ENDIF
+
+{}.c{$(DIR)}.obj:
+	$(CCmsg)$(CC) /c $(CFLAGS) /Fo$@ $<
+
+{}.rc{$(DIR)}.res:
+	$(RCmsg)$(RC) $(RFLAGS) /fo$@ $<
+
+all: errout$(BITS)
+
+errout32: x86 x86\errout32.dll x86\errout.exe x64 x64\errout32.dll
+
+errout64: x64 x64\errout64.dll x64\errout.exe
+
+x86:
+	mkdir x86
+
+x86\errout.exe: x86\errout.obj x86\errout.res
+	$(LDmsg)$(CC) /nologo $(SHARE) /Fe$@ $** $(LIBS) x86\errout32.lib /link /filealign:512
+!IF "$(_NMAKE_VER)" == "9.00.30729.01"
+	$(MTmsg)$(MT) /nologo -manifest $@.manifest -outputresource:$@;1
+	@del $@.manifest
+!ENDIF
+
+x86\errout32.dll: x86\errouthk.obj x86\proctype.obj x86\injdll32.obj x86\errouthk.res
+	$(LDmsg)$(CC) /nologo $(SHARE) /LD /Fe$@ $** $(LIBS) /link /base:0xE00000 /section:.shared,s /filealign:512
+!IF "$(_NMAKE_VER)" == "9.00.30729.01"
+	$(MTmsg)$(MT) /nologo -manifest $@.manifest -outputresource:$@;2
+	@del $@.manifest
+!ENDIF
+
+x64:
+	mkdir x64
+
+x64\errout.exe: x64\errout.obj x64\errout.res
+	$(LDmsg)$(CC) /nologo $(SHARE) /Fe$@ $** $(LIBS) x64\errout64.lib
+
+x64\errout64.dll: x64\errouthk.obj x64\proctype.obj x64\injdll64.obj x64\injdll32.obj x64\errouthk.res
+	$(LDmsg)$(CC) /nologo $(SHARE) /LD /Fe$@ $** $(LIBS) /link /base:0xE0000000 /section:.shared,s
+
+x64\errout32.dll: x64\errouthk32.obj x64\proctype32.obj x86\injdll32.obj x86\errouthk.res
+	$(LDmsg)$(CC) /nologo $(SHARE) /LD /Fe$@ $** $(LIBS) /link /base:0xE00000 /section:.shared,s /filealign:512
+!IF "$(_NMAKE_VER)" == "9.00.30729.01"
+	$(MTmsg)$(MT) /nologo -manifest $@.manifest -outputresource:$@;2
+	@del $@.manifest
+!ENDIF
+
+errout.c:   errout.h
+errouthk.c: errout.h
+injdll32.c: errout.h
+injdll64.c: errout.h
+proctype.c: errout.h
+
+x64\errouthk32.obj: errouthk.c
+	$(CCmsg)$(CC) /DW32ON64 /c $(CFLAGS) /Fo$@ $?
+x64\proctype32.obj: proctype.c
+	$(CCmsg)$(CC) /DW32ON64 /c $(CFLAGS) /Fo$@ $?
+
+clean:
+	-del $(DIR)\*.obj $(DIR)\*.res $(DIR)\*.lib $(DIR)\*.exp
+!IF $(BITS) == 32
+	-del x64\errouthk32.obj x64\proctype32.obj
+!ENDIF
