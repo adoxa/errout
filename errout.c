@@ -4,11 +4,15 @@
   Jason Hood, 29 June to 2 July, 2011.
 
   Set up a WriteFile hook to redirect both stdout & stderr, maintaining the
-  order as you'd see it on the console (which "2>&1" doesn't do).
+  order as you'd see it on the console (which "2>&1" doesn't necessarily do).
+
+  v1.11, 5 December, 2013:
+  - return the exit code of the program;
+  * enable read sharing of the files.
 */
 
-#define PVERS L"1.10"
-#define PDATE L"14 November, 2013"
+#define PVERS L"1.11"
+#define PDATE L"5 December, 2013"
 
 #define DO_IMPORT
 #include "errout.h"
@@ -190,7 +194,7 @@ int main( void )
 	case 'f': pFile = &global.hFilCon; break;
       }
       get_arg( arg, &argv, &cmd );
-      *pFile = CreateFile( arg, GENERIC_WRITE, 0, &sa,
+      *pFile = CreateFile( arg, GENERIC_WRITE, FILE_SHARE_READ, &sa,
 			   (append) ? OPEN_ALWAYS : CREATE_ALWAYS, 0, 0 );
       if (*pFile == INVALID_HANDLE_VALUE)
       {
@@ -229,6 +233,7 @@ int main( void )
     CloseHandle( pi.hThread );
     SetConsoleCtrlHandler( (PHANDLER_ROUTINE)CtrlHandler, TRUE );
     WaitForSingleObject( pi.hProcess, INFINITE );
+    GetExitCodeProcess( pi.hProcess, (LPDWORD)&rc );
     CloseHandle( pi.hProcess );
   }
   else

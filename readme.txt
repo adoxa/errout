@@ -2,7 +2,7 @@
 
 			 Copyright 2011-2013 Jason Hood
 
-			    Version 1.10.  Freeware
+			    Version 1.11.  Freeware
 
 
 Description
@@ -11,9 +11,9 @@ Description
     There are occasions when you would like to redirect both standard output
     (stdout) and standard error (stderr).  The normal method to achieve this is
     ">file 2>&1" - send stdout to the file and duplicate stderr to stdout.  The
-    problem with this method is it changes the order (as seen on the console) -
-    you end up with all of stdout, followed by all of stderr.  Errout really
-    sends stderr to stdout, maintaining the order.
+    problem with this method is it may change the order (as seen on the
+    console) - you end up with all of stdout, followed by all of stderr.
+    Errout really sends stderr to stdout, maintaining the order.
 
 
 Requirements
@@ -77,6 +77,10 @@ Version History
 
     Legend: + added, - bug-fixed, * changed.
 
+    1.11 - 5 December, 2013:
+    - return the exit code of the program;
+    * enable read sharing of the files.
+
     1.10 - 14 November, 2013:
     * improved compatibility (thanks to all the work done on ANSICON).
 
@@ -107,5 +111,5 @@ Distribution
     in LICENSE.txt.
 
 
-==============================
-Jason Hood, 14 November, 2013.
+=============================
+Jason Hood, 5 December, 2013.

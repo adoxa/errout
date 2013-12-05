@@ -9,7 +9,7 @@
   API hooking derived from ANSI.xs by Jean-Louis Morel, from his Perl package
   Win32::Console::ANSI (this version ripped out of ANSICON v1.40).
 
-  v1.10, 13 & 14 November, 2013
+  v1.10, 13 & 14 November, 2013:
   * use all the improvements made to ANSICON v1.66.
 */
 
